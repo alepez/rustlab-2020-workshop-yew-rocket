@@ -4,8 +4,8 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const configurations = {
   production: {
-    distPath: path.resolve(__dirname, "../album-web/static/ui"),
-    publicPath: '/static/ui/',
+    distPath: path.resolve(__dirname, "../album-server/static"),
+    publicPath: '/',
     cargoFeatures: [],
     entry: './bootstrap.js',
   },

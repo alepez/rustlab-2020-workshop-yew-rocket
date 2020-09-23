@@ -21,3 +21,13 @@ yarn run start:dev
 ```
 
 Go to [localhost:8001](http://localhost:8001/)
+
+## album-server
+
+```sh
+cd album-server
+cargo run
+```
+
+Go to [localhost:8000/static/ui/index.html](http://localhost:8001/)
+

@@ -1,0 +1,12 @@
+[package]
+name = "devand-web"
+version = "0.1.0"
+authors = ["Alessandro Pezzato <alessandro@pezzato.net>"]
+edition = "2018"
+
+[dependencies]
+dotenv = "0.15"
+env_logger = "0.7"
+log = "0.4"
+rocket = { version = "0.4" }
+rocket_contrib = { version = "0.4", features = [ "serve", "json" ] }
