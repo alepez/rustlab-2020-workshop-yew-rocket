@@ -1,13 +1,13 @@
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
 
 const PREVIEWS_DIR: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dogs");
 
-#[derive(Debug, Serialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Image {
     id: usize,
 }
 
-#[derive(Debug, Default, Serialize)]
+#[derive(Debug, Default, Serialize, Deserialize)]
 pub struct Images(pub Vec<Image>);
 
 impl Image {

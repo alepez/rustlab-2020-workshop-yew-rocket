@@ -16,6 +16,8 @@ yew = { git = "https://github.com/yewstack/yew.git", tag = "0.17.3" }
 yew-router = { git = "https://github.com/yewstack/yew.git", tag = "0.17.3" }
 yewtil = { git = "https://github.com/yewstack/yew.git", tag = "0.17.3", features = ["pure"] }
 web-sys = { version = "0.3" }
+serde = { version = "1" }
+anyhow = "1"
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3"
