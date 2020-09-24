@@ -65,6 +65,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "album-db"
+version = "0.1.0"
+dependencies = [
+ "serde",
+]
+
+[[package]]
 name = "album-ui"
 version = "0.1.0"
 dependencies = [
@@ -257,6 +264,7 @@ dependencies = [
 name = "devand-web"
 version = "0.1.0"
 dependencies = [
+ "album-db",
  "dotenv",
  "env_logger",
  "log 0.4.11",

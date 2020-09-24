@@ -3,4 +3,5 @@
 members = [
   "album-ui",
   "album-server",
+  "album-db",
 ]
