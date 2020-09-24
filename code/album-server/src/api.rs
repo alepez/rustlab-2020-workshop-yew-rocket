@@ -13,6 +13,13 @@ impl Image {
         let filename = format!("dog.{}.jpg", id);
         Self { id, filename }
     }
+
+    fn preview_path(&self) -> std::path::PathBuf {
+        let mut path =
+            std::path::PathBuf::from("/home/pez/workspace/rustlab/rocket-yew-workshop/dogs");
+        path.push(&self.filename);
+        path
+    }
 }
 
 #[derive(Debug, Default, Serialize)]
@@ -35,8 +42,7 @@ fn images() -> Json<Images> {
 #[get("/images/<id>/preview.jpg")]
 fn image_preview(id: usize) -> std::io::Result<Vec<u8>> {
     let image = Image::from_id(id);
-    let mut path = std::path::PathBuf::from("/home/pez/workspace/rustlab/rocket-yew-workshop/dogs");
-    path.push(image.filename);
+    let path = image.preview_path();
     std::fs::read(path)
 }
 
