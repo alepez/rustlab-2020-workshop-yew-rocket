@@ -1,0 +1,6 @@
+[workspace]
+
+members = [
+  "album-ui",
+  "album-server",
+]
