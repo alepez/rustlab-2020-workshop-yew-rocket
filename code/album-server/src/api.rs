@@ -11,7 +11,7 @@ struct Image {
 struct Images(Vec<Image>);
 
 pub fn routes() -> Vec<Route> {
-    routes![index, images]
+    routes![index, images, image_preview]
 }
 
 #[get("/")]
@@ -22,6 +22,13 @@ fn index() -> Json<String> {
 #[get("/images")]
 fn images() -> Json<Images> {
     Json(fake_images())
+}
+
+#[get("/images/<id>/preview.jpg")]
+fn image_preview(id: String) -> std::io::Result<Vec<u8>> {
+    let mut path = std::path::PathBuf::from("/home/pez/workspace/rustlab/rocket-yew-workshop/dogs");
+    path.push("dog.985.jpg");
+    std::fs::read(path)
 }
 
 fn fake_images() -> Images {
