@@ -5,19 +5,18 @@ use serde::Serialize;
 #[derive(Debug, Serialize)]
 struct Image {
     id: usize,
-    filename: String,
 }
 
 impl Image {
     fn from_id(id: usize) -> Self {
-        let filename = format!("dog.{}.jpg", id);
-        Self { id, filename }
+        Self { id }
     }
 
     fn preview_path(&self) -> std::path::PathBuf {
+        let filename = format!("dog.{}.jpg", self.id);
         let mut path =
             std::path::PathBuf::from("/home/pez/workspace/rustlab/rocket-yew-workshop/dogs");
-        path.push(&self.filename);
+        path.push(filename);
         path
     }
 }
@@ -63,7 +62,7 @@ mod test {
         assert_eq!(response.status(), Status::Ok);
         assert_eq!(
             response.body_string().unwrap(),
-            "[{\"id\":3145,\"filename\":\"dog.3145.jpg\"}]"
+            "[{\"id\":3145}]"
         );
     }
 }
