@@ -12,8 +12,8 @@ fn index() -> Json<String> {
 }
 
 #[get("/images")]
-fn images() -> Option<Json<Images>> {
-    list_images().ok().map(Json)
+fn images() -> std::io::Result<Json<Images>> {
+    list_images().map(Json)
 }
 
 #[get("/images/<id>/preview.jpg")]
