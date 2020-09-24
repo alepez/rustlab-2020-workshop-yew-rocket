@@ -36,7 +36,7 @@ fn index() -> Json<String> {
 
 #[get("/images")]
 fn images() -> Json<Images> {
-    Json(fake_images())
+    Json(list_images().unwrap())
 }
 
 #[get("/images/<id>/preview.jpg")]
@@ -46,8 +46,24 @@ fn image_preview(id: usize) -> std::io::Result<Vec<u8>> {
     std::fs::read(path)
 }
 
-fn fake_images() -> Images {
-    Images(vec![Image::from_id(3145)])
+fn parse_id(filename: &str) -> Option<usize> {
+    let name: String = filename.chars().skip(4).take_while(|&x| x != '.').collect();
+    name.parse().ok()
+}
+
+fn list_images() -> Result<Images, std::io::Error> {
+    let entries = std::fs::read_dir(PREVIEWS_DIR)?;
+
+    let images = entries
+        .filter_map(|res| res.ok())
+        .filter_map(|res| {
+            let name = res.file_name();
+            parse_id(name.to_str()?)
+        })
+        .map(|id| Image::from_id(id))
+        .collect();
+
+    Ok(Images(images))
 }
 
 #[cfg(test)]
@@ -61,6 +77,6 @@ mod test {
         let client = Client::new(ignite()).unwrap();
         let mut response = client.get("/api/images").dispatch();
         assert_eq!(response.status(), Status::Ok);
-        assert_eq!(response.body_string().unwrap(), "[{\"id\":3145}]");
+        assert!(response.body_string().unwrap().len() > 0);
     }
 }
