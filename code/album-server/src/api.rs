@@ -2,6 +2,8 @@ use rocket::{get, routes, Route};
 use rocket_contrib::json::Json;
 use serde::Serialize;
 
+const PREVIEWS_DIR: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dogs");
+
 #[derive(Debug, Serialize)]
 struct Image {
     id: usize,
@@ -14,8 +16,7 @@ impl Image {
 
     fn preview_path(&self) -> std::path::PathBuf {
         let filename = format!("dog.{}.jpg", self.id);
-        let mut path =
-            std::path::PathBuf::from("/home/pez/workspace/rustlab/rocket-yew-workshop/dogs");
+        let mut path = std::path::PathBuf::from(PREVIEWS_DIR);
         path.push(filename);
         path
     }
@@ -60,9 +61,6 @@ mod test {
         let client = Client::new(ignite()).unwrap();
         let mut response = client.get("/api/images").dispatch();
         assert_eq!(response.status(), Status::Ok);
-        assert_eq!(
-            response.body_string().unwrap(),
-            "[{\"id\":3145}]"
-        );
+        assert_eq!(response.body_string().unwrap(), "[{\"id\":3145}]");
     }
 }
