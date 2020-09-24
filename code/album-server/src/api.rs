@@ -12,8 +12,8 @@ fn index() -> Json<String> {
 }
 
 #[get("/images")]
-fn images() -> Json<Images> {
-    Json(list_images().unwrap())
+fn images() -> Option<Json<Images>> {
+    list_images().ok().map(Json)
 }
 
 #[get("/images/<id>/preview.jpg")]
