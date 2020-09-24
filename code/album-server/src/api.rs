@@ -4,7 +4,15 @@ use serde::Serialize;
 
 #[derive(Debug, Serialize)]
 struct Image {
+    id: usize,
     filename: String,
+}
+
+impl Image {
+    fn from_id(id: usize) -> Self {
+        let filename = format!("dog.{}.jpg", id);
+        Self { id, filename }
+    }
 }
 
 #[derive(Debug, Default, Serialize)]
@@ -25,16 +33,15 @@ fn images() -> Json<Images> {
 }
 
 #[get("/images/<id>/preview.jpg")]
-fn image_preview(id: String) -> std::io::Result<Vec<u8>> {
+fn image_preview(id: usize) -> std::io::Result<Vec<u8>> {
+    let image = Image::from_id(id);
     let mut path = std::path::PathBuf::from("/home/pez/workspace/rustlab/rocket-yew-workshop/dogs");
-    path.push("dog.985.jpg");
+    path.push(image.filename);
     std::fs::read(path)
 }
 
 fn fake_images() -> Images {
-    Images(vec![Image {
-        filename: "dog.3145.jpg".into(),
-    }])
+    Images(vec![Image::from_id(3145)])
 }
 
 #[cfg(test)]
@@ -50,7 +57,7 @@ mod test {
         assert_eq!(response.status(), Status::Ok);
         assert_eq!(
             response.body_string().unwrap(),
-            "[{\"filename\":\"dog.3145.jpg\"}]"
+            "[{\"id\":3145,\"filename\":\"dog.3145.jpg\"}]"
         );
     }
 }
