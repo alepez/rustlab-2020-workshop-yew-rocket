@@ -21,5 +21,11 @@ fn index() -> Json<String> {
 
 #[get("/images")]
 fn images() -> Json<Images> {
-    Json(Images::default())
+    Json(fake_images())
+}
+
+fn fake_images() -> Images {
+    Images(vec![Image {
+        filename: "dog.3145.jpg".into(),
+    }])
 }
