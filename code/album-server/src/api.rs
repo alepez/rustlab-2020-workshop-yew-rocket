@@ -29,3 +29,17 @@ fn fake_images() -> Images {
         filename: "dog.3145.jpg".into(),
     }])
 }
+
+#[cfg(test)]
+mod test {
+    use super::super::ignite;
+    use rocket::http::Status;
+    use rocket::local::Client;
+
+    #[test]
+    fn api_images_get_ok() {
+        let client = Client::new(ignite()).unwrap();
+        let response = client.get("/api/images").dispatch();
+        assert_eq!(response.status(), Status::Ok);
+    }
+}
