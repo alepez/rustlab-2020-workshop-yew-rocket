@@ -1,6 +1,6 @@
 mod worker;
 
-use album_db::Images;
+use album_db::{Image, Images};
 use std::rc::Rc;
 use worker::Worker;
 use yew::prelude::*;
@@ -52,7 +52,10 @@ impl Component for App {
     fn view(&self) -> Html {
         if let Some(images) = &self.state.images {
             html! {
-            <div>{ format!("There are {} images", images.0.len() )}</div>
+            <>
+                <div>{ format!("There are {} images", images.0.len() )}</div>
+                { for images.0.iter().map(view_image) }
+            </>
             }
         } else {
             html! {
@@ -60,4 +63,9 @@ impl Component for App {
             }
         }
     }
+}
+
+fn view_image(image: &Image) -> Html {
+    let src = format!("/api/images/{}/preview.jpg", image.id);
+    html! { <img src=src /> }
 }
