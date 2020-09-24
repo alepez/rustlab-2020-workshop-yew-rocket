@@ -75,6 +75,7 @@ dependencies = [
 name = "album-ui"
 version = "0.1.0"
 dependencies = [
+ "album-db",
  "wasm-bindgen",
  "wasm-bindgen-test",
  "wasm-logger",

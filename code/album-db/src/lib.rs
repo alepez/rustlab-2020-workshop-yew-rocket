@@ -8,7 +8,7 @@ pub struct Image {
 }
 
 #[derive(Debug, Default, Serialize)]
-pub struct Images(Vec<Image>);
+pub struct Images(pub Vec<Image>);
 
 impl Image {
     pub fn from_id(id: usize) -> Self {
@@ -42,4 +42,3 @@ fn parse_id(filename: &str) -> Option<usize> {
     let name: String = filename.chars().skip(4).take_while(|&x| x != '.').collect();
     name.parse().ok()
 }
-

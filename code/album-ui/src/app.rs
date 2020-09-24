@@ -1,9 +1,15 @@
+use album_db::Images;
 use yew::prelude::*;
 
 pub struct App {
+    state: State,
 }
 
-pub enum Msg {
+pub enum Msg {}
+
+#[derive(Default)]
+struct State {
+    images: Option<Images>,
 }
 
 impl Component for App {
@@ -11,7 +17,9 @@ impl Component for App {
     type Properties = ();
 
     fn create(_props: Self::Properties, _link: ComponentLink<Self>) -> Self {
-        App { }
+        App {
+            state: State::default(),
+        }
     }
 
     fn change(&mut self, _props: Self::Properties) -> ShouldRender {
@@ -23,8 +31,14 @@ impl Component for App {
     }
 
     fn view(&self) -> Html {
-        html! {
-        <div>{ "Hello world!"}</div>
+        if let Some(images) = &self.state.images {
+            html! {
+            <div>{ format!("There are {} images", images.0.len() )}</div>
+            }
+        } else {
+            html! {
+            <div>{ "Loading..."}</div>
+            }
         }
     }
 }
