@@ -39,7 +39,11 @@ mod test {
     #[test]
     fn api_images_get_ok() {
         let client = Client::new(ignite()).unwrap();
-        let response = client.get("/api/images").dispatch();
+        let mut response = client.get("/api/images").dispatch();
         assert_eq!(response.status(), Status::Ok);
+        assert_eq!(
+            response.body_string().unwrap(),
+            "[{\"filename\":\"dog.3145.jpg\"}]"
+        );
     }
 }
