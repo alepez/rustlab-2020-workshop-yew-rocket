@@ -77,6 +77,7 @@ version = "0.1.0"
 dependencies = [
  "album-db",
  "anyhow",
+ "log 0.4.11",
  "serde",
  "wasm-bindgen",
  "wasm-bindgen-test",

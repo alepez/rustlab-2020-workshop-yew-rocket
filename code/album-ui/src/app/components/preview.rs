@@ -4,10 +4,13 @@ use yew::prelude::*;
 
 pub struct Preview {
     props: Props,
+    link: ComponentLink<Preview>,
     _worker: Box<dyn Bridge<Worker>>,
 }
 
 pub enum Msg {
+    DeleteClicked,
+
     WorkerRes(worker::Response),
 }
 
@@ -25,6 +28,7 @@ impl Component for Preview {
 
         Preview {
             props,
+            link,
             _worker: worker,
         }
     }
@@ -35,6 +39,10 @@ impl Component for Preview {
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
+            Msg::DeleteClicked => {
+                log::info!("Delete {:?}", self.props.image);
+                false
+            }
             Msg::WorkerRes(res) => match res {
                 _ => false,
             },
@@ -46,7 +54,7 @@ impl Component for Preview {
         html! {
         <div class="album-preview">
             <div class="album-toolbar">
-                <button>{ "Delete" }</button>
+                <button onclick=self.link.callback(|_| Msg::DeleteClicked)>{ "Delete" }</button>
             </div>
             <img src=src />
         </div>
