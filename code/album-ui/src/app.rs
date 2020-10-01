@@ -1,7 +1,7 @@
 mod components;
 mod worker;
 
-use album_db::{Image, Images};
+use album_db::Images;
 use components::Preview;
 use std::rc::Rc;
 use worker::Worker;
