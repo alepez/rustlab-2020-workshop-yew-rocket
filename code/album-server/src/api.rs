@@ -16,16 +16,14 @@ fn images() -> Option<Json<Images>> {
     list_images().map(Json).ok()
 }
 
-#[get("/images/<id>/preview.jpg")]
-fn image_preview(id: usize) -> Option<Vec<u8>> {
-    let image = Image::from_id(id);
+#[get("/images/<image>/preview.jpg")]
+fn image_preview(image: Image) -> Option<Vec<u8>> {
     let path = image.preview_path();
     std::fs::read(path).ok()
 }
 
-#[delete("/images/<id>")]
-fn image_delete(id: usize) -> Result<(), ()> {
-    let image = Image::from_id(id);
+#[delete("/images/<image>")]
+fn image_delete(image: Image) -> Result<(), ()> {
     log::info!("Delete image {:?}", image);
     Ok(())
 }

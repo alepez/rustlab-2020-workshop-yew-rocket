@@ -23,6 +23,16 @@ impl Image {
     }
 }
 
+#[cfg(feature="rocket_param")]
+impl<'r> rocket::request::FromParam<'r> for Image {
+    type Error = &'r rocket::http::RawStr;
+
+    fn from_param(param: &'r rocket::http::RawStr) -> Result<Self, Self::Error> {
+        let id = usize::from_param(param)?;
+        Ok(Image::from_id(id))
+    }
+}
+
 pub fn list_images() -> Result<Images, std::io::Error> {
     let entries = std::fs::read_dir(PREVIEWS_DIR)?;
 

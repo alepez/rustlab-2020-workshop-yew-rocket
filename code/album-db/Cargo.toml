@@ -8,3 +8,8 @@ edition = "2018"
 
 [dependencies]
 serde = { version = "1" , features = ["derive"] }
+rocket = { version = "0.4", optional = true }
+
+[features]
+default = []
+rocket_param = [ "rocket" ]
