@@ -43,6 +43,13 @@ impl Component for Preview {
 
     fn view(&self) -> Html {
         let src = format!("/api/images/{}/preview.jpg", self.props.image.id);
-        html! { <div class="album-preview"><img src=src /></div> }
+        html! {
+        <div class="album-preview">
+            <div class="album-toolbar">
+                <button>{ "Delete" }</button>
+            </div>
+            <img src=src />
+        </div>
+        }
     }
 }
