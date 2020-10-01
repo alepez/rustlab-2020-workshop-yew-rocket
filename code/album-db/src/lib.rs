@@ -2,7 +2,7 @@ use serde::{Serialize, Deserialize};
 
 const PREVIEWS_DIR: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dogs");
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone, Copy)]
 pub struct Image {
     pub id: usize,
 }
