@@ -72,6 +72,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "album-server"
+version = "0.1.0"
+dependencies = [
+ "album-db",
+ "dotenv",
+ "env_logger",
+ "log 0.4.11",
+ "rocket",
+ "rocket_contrib",
+ "serde",
+]
+
+[[package]]
 name = "album-ui"
 version = "0.1.0"
 dependencies = [
@@ -262,19 +275,6 @@ checksum = "4434400df11d95d556bac068ddfedd482915eb18fe8bea89bc80b6e4b1c179e5"
 dependencies = [
  "generic-array",
  "subtle 1.0.0",
-]
-
-[[package]]
-name = "devand-web"
-version = "0.1.0"
-dependencies = [
- "album-db",
- "dotenv",
- "env_logger",
- "log 0.4.11",
- "rocket",
- "rocket_contrib",
- "serde",
 ]
 
 [[package]]
