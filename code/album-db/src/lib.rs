@@ -27,6 +27,7 @@ pub fn list_images() -> Result<Images, std::io::Error> {
     let entries = std::fs::read_dir(PREVIEWS_DIR)?;
 
     let images = entries
+        .take(100)
         .filter_map(|res| res.ok())
         .filter_map(|res| {
             let name = res.file_name();
