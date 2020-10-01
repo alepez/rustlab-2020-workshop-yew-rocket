@@ -5,7 +5,7 @@ use yew::prelude::*;
 pub struct Preview {
     props: Props,
     link: ComponentLink<Preview>,
-    _worker: Box<dyn Bridge<Worker>>,
+    worker: Box<dyn Bridge<Worker>>,
 }
 
 pub enum Msg {
@@ -29,7 +29,7 @@ impl Component for Preview {
         Preview {
             props,
             link,
-            _worker: worker,
+            worker,
         }
     }
 
@@ -41,6 +41,7 @@ impl Component for Preview {
         match msg {
             Msg::DeleteClicked => {
                 log::info!("Delete {:?}", self.props.image);
+                self.worker.send(worker::Request::DeleteImage(self.props.image));
                 false
             }
             Msg::WorkerRes(res) => match res {

@@ -1,9 +1,9 @@
 use album_db::{list_images, Image, Images};
-use rocket::{get, routes, Route};
+use rocket::{get, delete, routes, Route};
 use rocket_contrib::json::Json;
 
 pub fn routes() -> Vec<Route> {
-    routes![index, images, image_preview]
+    routes![index, images, image_preview, image_delete]
 }
 
 #[get("/")]
@@ -21,6 +21,13 @@ fn image_preview(id: usize) -> Option<Vec<u8>> {
     let image = Image::from_id(id);
     let path = image.preview_path();
     std::fs::read(path).ok()
+}
+
+#[delete("/images/<id>")]
+fn image_delete(id: usize) -> Result<(), ()> {
+    let image = Image::from_id(id);
+    log::info!("Delete image {:?}", image);
+    Ok(())
 }
 
 #[cfg(test)]

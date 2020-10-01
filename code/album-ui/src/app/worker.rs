@@ -1,4 +1,4 @@
-use album_db::Images;
+use album_db::{Image, Images};
 use std::collections::HashSet;
 use std::rc::Rc;
 use yew::format::{Json, Nothing, Text};
@@ -9,6 +9,7 @@ use yew::worker::*;
 #[derive(Debug)]
 pub enum Request {
     GetImages,
+    DeleteImage(Image),
 }
 
 #[derive(Debug, Clone)]
@@ -82,6 +83,10 @@ pub fn request(worker: &mut Worker, msg: Request) {
             let req = get("/api/images");
             task(worker, req, Response::ImagesLoaded)
         }
+        Request::DeleteImage(image) => {
+            let req = delete(format!("/api/images/{}", image.id).as_str());
+            task(worker, req, Response::ImagesLoaded)
+        }
     };
 
     worker.fetch_task = task;
@@ -89,6 +94,10 @@ pub fn request(worker: &mut Worker, msg: Request) {
 
 fn get(url: &str) -> fetch::Request<Nothing> {
     fetch::Request::get(url).body(Nothing).unwrap()
+}
+
+fn delete(url: &str) -> fetch::Request<Nothing> {
+    fetch::Request::delete(url).body(Nothing).unwrap()
 }
 
 fn task<T, IN>(
