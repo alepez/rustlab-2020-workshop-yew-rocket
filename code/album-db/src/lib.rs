@@ -1,6 +1,5 @@
 use serde::{Deserialize, Serialize};
-
-const PREVIEWS_DIR: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dogs");
+use std::path::PathBuf;
 
 #[derive(Debug, Serialize, Deserialize, Clone, Copy)]
 pub struct Image {
@@ -15,15 +14,15 @@ impl Image {
         Self { id }
     }
 
-    pub fn preview_path(&self) -> std::path::PathBuf {
+    pub fn preview_path(&self, db: &Database) -> PathBuf {
         let filename = format!("dog.{}.jpg", self.id);
-        let mut path = std::path::PathBuf::from(PREVIEWS_DIR);
+        let mut path = PathBuf::from(&db.root);
         path.push(filename);
         path
     }
 }
 
-#[cfg(feature="rocket_param")]
+#[cfg(feature = "rocket_param")]
 impl<'r> rocket::request::FromParam<'r> for Image {
     type Error = &'r rocket::http::RawStr;
 
@@ -33,23 +32,33 @@ impl<'r> rocket::request::FromParam<'r> for Image {
     }
 }
 
-pub fn list_images() -> Result<Images, std::io::Error> {
-    let entries = std::fs::read_dir(PREVIEWS_DIR)?;
-
-    let images = entries
-        .take(100)
-        .filter_map(|res| res.ok())
-        .filter_map(|res| {
-            let name = res.file_name();
-            parse_id(name.to_str()?)
-        })
-        .map(|id| Image::from_id(id))
-        .collect();
-
-    Ok(Images(images))
-}
-
 fn parse_id(filename: &str) -> Option<usize> {
     let name: String = filename.chars().skip(4).take_while(|&x| x != '.').collect();
     name.parse().ok()
+}
+
+pub struct Database {
+    root: PathBuf,
+}
+
+impl Database {
+    pub fn new(root: PathBuf) -> Self {
+        Self { root }
+    }
+
+    pub fn list_images(&self) -> Option<Images> {
+        let entries = std::fs::read_dir(&self.root).ok()?;
+
+        let images = entries
+            .take(100)
+            .filter_map(|res| res.ok())
+            .filter_map(|res| {
+                let name = res.file_name();
+                parse_id(name.to_str()?)
+            })
+            .map(|id| Image::from_id(id))
+            .collect();
+
+        Some(Images(images))
+    }
 }
