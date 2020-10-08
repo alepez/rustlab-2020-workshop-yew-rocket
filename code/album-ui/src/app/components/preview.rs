@@ -1,6 +1,7 @@
 use crate::app::worker::{self, Worker};
 use album_db::Image;
 use yew::prelude::*;
+use yewtil::NeqAssign;
 
 pub struct Preview {
     props: Props,
@@ -14,7 +15,7 @@ pub enum Msg {
     WorkerRes(worker::Response),
 }
 
-#[derive(Properties, Clone)]
+#[derive(Properties, Clone, Eq, PartialEq)]
 pub struct Props {
     pub image: Image,
 }
@@ -33,8 +34,8 @@ impl Component for Preview {
         }
     }
 
-    fn change(&mut self, _props: Self::Properties) -> ShouldRender {
-        false
+    fn change(&mut self, props: Self::Properties) -> ShouldRender {
+        self.props.neq_assign(props)
     }
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
