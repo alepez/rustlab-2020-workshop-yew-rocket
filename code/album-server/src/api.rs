@@ -26,10 +26,10 @@ fn image_preview(db: State<Database>, image: Image) -> Option<Vec<u8>> {
 }
 
 #[delete("/images/<image>")]
-fn image_delete(db: State<Database>, image: Image) -> Result<(), ()> {
+fn image_delete(db: State<Database>, image: Image) -> Json<Images> {
     let mut db = db.0.write().unwrap();
     db.delete_image(&image);
-    Ok(())
+    Json(db.list_images().clone())
 }
 
 #[cfg(test)]
