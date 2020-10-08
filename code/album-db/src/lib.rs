@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 const PREVIEWS_DIR: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dogs");
 

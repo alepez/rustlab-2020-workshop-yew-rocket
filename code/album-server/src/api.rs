@@ -1,5 +1,5 @@
 use album_db::{list_images, Image, Images};
-use rocket::{get, delete, routes, Route};
+use rocket::{delete, get, routes, Route};
 use rocket_contrib::json::Json;
 
 pub fn routes() -> Vec<Route> {

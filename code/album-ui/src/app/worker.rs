@@ -77,6 +77,17 @@ impl Worker {
     }
 }
 
+#[cfg(feature = "mock_http")]
+pub fn request(worker: &mut Worker, msg: Request) {
+    let res = match msg {
+        Request::GetImages => Response::ImagesLoaded(Rc::new(Images(vec![Image { id: 1 }]))),
+        Request::DeleteImage(_image) => Response::ImagesLoaded(Rc::new(Images::default())),
+    };
+
+    worker.link.send_message(res);
+}
+
+#[cfg(not(feature = "mock_http"))]
 pub fn request(worker: &mut Worker, msg: Request) {
     let task = match msg {
         Request::GetImages => {
