@@ -1,8 +1,6 @@
 use album_db::{Database, Image, Images};
-use rocket::{delete, get, routes, Route};
+use rocket::{delete, get, routes, Route, State};
 use rocket_contrib::json::Json;
-
-const DB_DIR: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dogs");
 
 pub fn routes() -> Vec<Route> {
     routes![index, images, image_preview, image_delete]
@@ -14,14 +12,12 @@ fn index() -> Json<String> {
 }
 
 #[get("/images")]
-fn images() -> Option<Json<Images>> {
-    let db = Database::new(DB_DIR.into());
+fn images(db: State<Database>) -> Option<Json<Images>> {
     db.list_images().map(Json)
 }
 
 #[get("/images/<image>/preview.jpg")]
-fn image_preview(image: Image) -> Option<Vec<u8>> {
-    let db = Database::new(DB_DIR.into());
+fn image_preview(db: State<Database>, image: Image) -> Option<Vec<u8>> {
     let path = image.preview_path(&db);
     std::fs::read(path).ok()
 }

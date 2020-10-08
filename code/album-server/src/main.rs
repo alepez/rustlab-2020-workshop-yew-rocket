@@ -2,6 +2,7 @@
 
 mod api;
 
+use album_db::Database;
 use rocket::fairing::AdHoc;
 use rocket::Rocket;
 use rocket_contrib::serve::StaticFiles;
@@ -25,7 +26,11 @@ fn static_files(rocket: Rocket) -> Result<Rocket, Rocket> {
 fn ignite() -> rocket::Rocket {
     dotenv::dotenv().ok();
 
+    const DB_DIR: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dogs");
+    let db = Database::new(DB_DIR.into());
+
     rocket::ignite()
+        .manage(db)
         .attach(AdHoc::on_attach("Static files", static_files))
         .mount("/api", api::routes())
 }
