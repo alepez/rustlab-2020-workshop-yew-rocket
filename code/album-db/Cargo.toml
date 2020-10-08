@@ -9,6 +9,8 @@ edition = "2018"
 [dependencies]
 serde = { version = "1" , features = ["derive"] }
 rocket = { version = "0.4", optional = true }
+env_logger = "0.7"
+log = "0.4"
 
 [features]
 default = []

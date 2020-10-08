@@ -27,7 +27,7 @@ fn ignite() -> rocket::Rocket {
     dotenv::dotenv().ok();
 
     const DB_DIR: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dogs");
-    let db = Database::new(DB_DIR.into());
+    let db = Database::new(DB_DIR.into()).unwrap();
 
     rocket::ignite()
         .manage(db)

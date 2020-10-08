@@ -12,8 +12,8 @@ fn index() -> Json<String> {
 }
 
 #[get("/images")]
-fn images(db: State<Database>) -> Option<Json<Images>> {
-    db.list_images().map(Json)
+fn images(db: State<Database>) -> Json<Images> {
+    Json(db.list_images().clone())
 }
 
 #[get("/images/<image>/preview.jpg")]

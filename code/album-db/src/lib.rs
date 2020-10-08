@@ -6,7 +6,7 @@ pub struct Image {
     pub id: usize,
 }
 
-#[derive(Debug, Default, Serialize, Deserialize)]
+#[derive(Debug, Default, Serialize, Deserialize, Clone)]
 pub struct Images(pub Vec<Image>);
 
 impl Image {
@@ -39,15 +39,12 @@ fn parse_id(filename: &str) -> Option<usize> {
 
 pub struct Database {
     root: PathBuf,
+    images: Images,
 }
 
 impl Database {
-    pub fn new(root: PathBuf) -> Self {
-        Self { root }
-    }
-
-    pub fn list_images(&self) -> Option<Images> {
-        let entries = std::fs::read_dir(&self.root).ok()?;
+    pub fn new(root: PathBuf) -> Option<Self> {
+        let entries = std::fs::read_dir(&root).ok()?;
 
         let images = entries
             .take(100)
@@ -59,6 +56,14 @@ impl Database {
             .map(|id| Image::from_id(id))
             .collect();
 
-        Some(Images(images))
+        let images = Images(images);
+
+        log::info!("Loaded {} images", images.0.len());
+
+        Some(Self { root, images })
+    }
+
+    pub fn list_images(&self) -> &Images {
+        &self.images
     }
 }

@@ -68,6 +68,8 @@ dependencies = [
 name = "album-db"
 version = "0.1.0"
 dependencies = [
+ "env_logger",
+ "log 0.4.11",
  "rocket",
  "serde",
 ]
