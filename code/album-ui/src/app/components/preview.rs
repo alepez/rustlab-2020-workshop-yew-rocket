@@ -42,7 +42,8 @@ impl Component for Preview {
         match msg {
             Msg::DeleteClicked => {
                 log::info!("Delete {:?}", self.props.image);
-                self.worker.send(worker::Request::DeleteImage(self.props.image));
+                self.worker
+                    .send(worker::Request::DeleteImage(self.props.image));
                 false
             }
             Msg::WorkerRes(res) => match res {

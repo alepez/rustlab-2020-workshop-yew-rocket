@@ -69,6 +69,5 @@ impl Database {
 
     pub fn delete_image(&mut self, image: &Image) {
         &self.images.0.retain(|x| x.id != image.id);
-
     }
 }
