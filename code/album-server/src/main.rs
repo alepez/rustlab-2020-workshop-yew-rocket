@@ -2,10 +2,10 @@
 
 mod api;
 
-use album_db::Database;
 use rocket::fairing::AdHoc;
 use rocket::Rocket;
 use rocket_contrib::serve::StaticFiles;
+use std::sync::RwLock;
 
 fn static_files(rocket: Rocket) -> Result<Rocket, Rocket> {
     const DEFAULT_DIR: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/static");
@@ -23,11 +23,14 @@ fn static_files(rocket: Rocket) -> Result<Rocket, Rocket> {
     Ok(rocket)
 }
 
+struct Database(pub std::sync::RwLock<album_db::Database>);
+
 fn ignite() -> rocket::Rocket {
     dotenv::dotenv().ok();
 
     const DB_DIR: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dogs");
-    let db = Database::new(DB_DIR.into()).unwrap();
+    let db = album_db::Database::new(DB_DIR.into()).unwrap();
+    let db = Database(RwLock::new(db));
 
     rocket::ignite()
         .manage(db)

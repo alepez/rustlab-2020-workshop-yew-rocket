@@ -1,4 +1,5 @@
-use album_db::{Database, Image, Images};
+use super::Database;
+use album_db::{Image, Images};
 use rocket::{delete, get, routes, Route, State};
 use rocket_contrib::json::Json;
 
@@ -13,17 +14,20 @@ fn index() -> Json<String> {
 
 #[get("/images")]
 fn images(db: State<Database>) -> Json<Images> {
+    let db = db.0.read().unwrap();
     Json(db.list_images().clone())
 }
 
 #[get("/images/<image>/preview.jpg")]
 fn image_preview(db: State<Database>, image: Image) -> Option<Vec<u8>> {
+    let db = db.0.read().unwrap();
     let path = image.preview_path(&db);
     std::fs::read(path).ok()
 }
 
 #[delete("/images/<image>")]
 fn image_delete(db: State<Database>, image: Image) -> Result<(), ()> {
+    let mut db = db.0.write().unwrap();
     db.delete_image(&image);
     Ok(())
 }
