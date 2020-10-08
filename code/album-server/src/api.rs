@@ -23,8 +23,8 @@ fn image_preview(db: State<Database>, image: Image) -> Option<Vec<u8>> {
 }
 
 #[delete("/images/<image>")]
-fn image_delete(image: Image) -> Result<(), ()> {
-    log::info!("Delete image {:?}", image);
+fn image_delete(db: State<Database>, image: Image) -> Result<(), ()> {
+    db.delete_image(&image);
     Ok(())
 }
 
