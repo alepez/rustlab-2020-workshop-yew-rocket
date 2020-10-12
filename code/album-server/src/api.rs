@@ -32,10 +32,10 @@ fn image_delete(db: State<Database>, image: Image) -> Json<Images> {
     Json(db.list_images().clone())
 }
 
-#[put("/images/<image>")]
-fn image_put(db: State<Database>, image: Image) -> Json<Images> {
+#[put("/images/<_image>", data = "<image>")]
+fn image_put(db: State<Database>, _image: Image, image: Json<Image>) -> Json<Images> {
     let mut db = db.0.write().unwrap();
-    db.update_image(image);
+    db.update_image(image.0);
     Json(db.list_images().clone())
 }
 
