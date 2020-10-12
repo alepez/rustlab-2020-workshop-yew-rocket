@@ -15,6 +15,7 @@ pub enum Msg {
     AddTagClicked,
     AcceptTagClicked,
     CancelTagClicked,
+    UpdateTagText(String),
 
     WorkerRes(worker::Response),
 }
@@ -22,6 +23,7 @@ pub enum Msg {
 #[derive(Default)]
 struct State {
     tag_input_visible: bool,
+    tag_text: String,
 }
 
 #[derive(Properties, Clone, Eq, PartialEq)]
@@ -62,11 +64,21 @@ impl Component for Preview {
                 true
             }
             Msg::AcceptTagClicked => {
+                let tag = self.state.tag_text.clone();
+                self.state.tag_text.clear();
                 self.state.tag_input_visible = false;
+                let image = self.props.image.clone();
+                // FIXME image.tags.push(tag
+                self.worker
+                    .send(worker::Request::UpdateImage(self.props.image));
                 true
             }
             Msg::CancelTagClicked => {
                 self.state.tag_input_visible = false;
+                true
+            }
+            Msg::UpdateTagText(tag) => {
+                self.state.tag_text = tag;
                 true
             }
             Msg::WorkerRes(res) => match res {
@@ -82,7 +94,10 @@ impl Component for Preview {
             if self.state.tag_input_visible {
                 html! {
                 <>
-                    <input type="text" />
+                    <input
+                        type="text"
+                        oninput=self.link.callback(|e: InputData| Msg::UpdateTagText(e.value))
+                    />
                     <button onclick=self.link.callback(|_| Msg::AcceptTagClicked)>{ "Ok" }</button>
                     <button onclick=self.link.callback(|_| Msg::CancelTagClicked)>{ "Cancel" }</button>
                 </>

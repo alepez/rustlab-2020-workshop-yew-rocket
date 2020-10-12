@@ -94,6 +94,7 @@ dependencies = [
  "anyhow",
  "log 0.4.11",
  "serde",
+ "serde_json",
  "wasm-bindgen",
  "wasm-bindgen-test",
  "wasm-logger",

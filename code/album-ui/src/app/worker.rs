@@ -10,6 +10,7 @@ use yew::worker::*;
 pub enum Request {
     GetImages,
     DeleteImage(Image),
+    UpdateImage(Image),
 }
 
 #[derive(Debug, Clone)]
@@ -82,6 +83,7 @@ pub fn request(worker: &mut Worker, msg: Request) {
     let res = match msg {
         Request::GetImages => Response::ImagesLoaded(Rc::new(Images(vec![Image { id: 1 }]))),
         Request::DeleteImage(_image) => Response::ImagesLoaded(Rc::new(Images::default())),
+        Request::UpdateImage(_image) => Response::ImagesLoaded(Rc::new(Images(vec![Image { id: 1 }]))),
     };
 
     worker.link.send_message(res);
@@ -98,6 +100,10 @@ pub fn request(worker: &mut Worker, msg: Request) {
             let req = delete(format!("/api/images/{}", image.id).as_str());
             task(worker, req, Response::ImagesLoaded)
         }
+        Request::UpdateImage(image) => {
+            let req = put(format!("/api/images/{}", image.id).as_str(), json(image));
+            task(worker, req, Response::ImagesLoaded)
+        }
     };
 
     worker.fetch_task = task;
@@ -110,6 +116,18 @@ fn get(url: &str) -> fetch::Request<Nothing> {
 fn delete(url: &str) -> fetch::Request<Nothing> {
     fetch::Request::delete(url).body(Nothing).unwrap()
 }
+
+fn put<IN>(url: &str, body: IN) -> fetch::Request<IN>
+where
+    IN: Into<Text>,
+{
+    fetch::Request::put(url).body(body).unwrap()
+}
+
+fn json<T: serde::ser::Serialize>(data: T) -> Result<String, anyhow::Error> {
+    serde_json::to_string(&data).map_err(|e| anyhow::anyhow!(e))
+}
+
 
 fn task<T, IN>(
     worker: &Worker,
