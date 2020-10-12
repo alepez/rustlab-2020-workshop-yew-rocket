@@ -5,14 +5,23 @@ use yewtil::NeqAssign;
 
 pub struct Preview {
     props: Props,
+    state: State,
     link: ComponentLink<Preview>,
     worker: Box<dyn Bridge<Worker>>,
 }
 
 pub enum Msg {
     DeleteClicked,
+    AddTagClicked,
+    AcceptTagClicked,
+    CancelTagClicked,
 
     WorkerRes(worker::Response),
+}
+
+#[derive(Default)]
+struct State {
+    tag_input_visible: bool,
 }
 
 #[derive(Properties, Clone, Eq, PartialEq)]
@@ -26,9 +35,11 @@ impl Component for Preview {
 
     fn create(props: Self::Properties, link: ComponentLink<Self>) -> Self {
         let worker = Worker::bridge(link.callback(Msg::WorkerRes));
+        let state = State::default();
 
         Preview {
             props,
+            state,
             link,
             worker,
         }
@@ -46,6 +57,18 @@ impl Component for Preview {
                     .send(worker::Request::DeleteImage(self.props.image));
                 false
             }
+            Msg::AddTagClicked => {
+                self.state.tag_input_visible = true;
+                true
+            }
+            Msg::AcceptTagClicked => {
+                self.state.tag_input_visible = false;
+                true
+            }
+            Msg::CancelTagClicked => {
+                self.state.tag_input_visible = false;
+                true
+            }
             Msg::WorkerRes(res) => match res {
                 _ => false,
             },
@@ -54,10 +77,28 @@ impl Component for Preview {
 
     fn view(&self) -> Html {
         let src = format!("/api/images/{}/preview.jpg", self.props.image.id);
+
+        let tag = {
+            if self.state.tag_input_visible {
+                html! {
+                <>
+                    <input type="text" />
+                    <button onclick=self.link.callback(|_| Msg::AcceptTagClicked)>{ "Ok" }</button>
+                    <button onclick=self.link.callback(|_| Msg::CancelTagClicked)>{ "Cancel" }</button>
+                </>
+                }
+            } else {
+                html! {
+                <button onclick=self.link.callback(|_| Msg::AddTagClicked)>{ "Tag" }</button>
+                }
+            }
+        };
+
         html! {
         <div class="album-preview">
             <div class="album-toolbar">
                 <button onclick=self.link.callback(|_| Msg::DeleteClicked)>{ "Delete" }</button>
+                { tag }
             </div>
             <img src=src />
         </div>
