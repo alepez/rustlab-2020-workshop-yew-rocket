@@ -6,7 +6,6 @@ edition = "2018"
 
 [dependencies]
 album-db = { path = "../album-db", features = [ "rocket_param" ] }
-dotenv = "0.15"
 env_logger = "0.7"
 log = "0.4"
 rocket = { version = "0.4" }

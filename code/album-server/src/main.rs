@@ -26,8 +26,6 @@ fn static_files(rocket: Rocket) -> Result<Rocket, Rocket> {
 struct Database(pub std::sync::RwLock<album_db::Database>);
 
 fn ignite() -> rocket::Rocket {
-    dotenv::dotenv().ok();
-
     const DB_DIR: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../dogs");
     let db = album_db::Database::new(DB_DIR.into()).unwrap();
     let db = Database(RwLock::new(db));
