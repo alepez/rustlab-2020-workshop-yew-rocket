@@ -1,5 +1,5 @@
 use crate::app::worker::{self, Worker};
-use album_db::Image;
+use album_db::{Image, Tag};
 use yew::prelude::*;
 use yewtil::NeqAssign;
 
@@ -56,7 +56,7 @@ impl Component for Preview {
             Msg::DeleteClicked => {
                 log::info!("Delete {:?}", self.props.image);
                 self.worker
-                    .send(worker::Request::DeleteImage(self.props.image));
+                    .send(worker::Request::DeleteImage(self.props.image.clone()));
                 false
             }
             Msg::AddTagClicked => {
@@ -64,13 +64,13 @@ impl Component for Preview {
                 true
             }
             Msg::AcceptTagClicked => {
-                let tag = self.state.tag_text.clone();
+                let tag = Tag(self.state.tag_text.clone());
                 self.state.tag_text.clear();
                 self.state.tag_input_visible = false;
-                let image = self.props.image.clone();
-                // FIXME image.tags.push(tag
+                let mut image = self.props.image.clone();
+                image.tags.push(tag);
                 self.worker
-                    .send(worker::Request::UpdateImage(self.props.image));
+                    .send(worker::Request::UpdateImage(image));
                 true
             }
             Msg::CancelTagClicked => {

@@ -1,9 +1,13 @@
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
-#[derive(Debug, Serialize, Deserialize, Clone, Copy, Eq, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq)]
+pub struct Tag(pub String);
+
+#[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq)]
 pub struct Image {
     pub id: usize,
+    pub tags: Vec<Tag>,
 }
 
 #[derive(Debug, Default, Serialize, Deserialize, Clone)]
@@ -11,7 +15,8 @@ pub struct Images(pub Vec<Image>);
 
 impl Image {
     pub fn from_id(id: usize) -> Self {
-        Self { id }
+        let tags = Vec::default();
+        Self { id, tags }
     }
 
     pub fn preview_path(&self, db: &Database) -> PathBuf {
