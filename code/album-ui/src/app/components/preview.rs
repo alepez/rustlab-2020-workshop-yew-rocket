@@ -109,12 +109,15 @@ impl Component for Preview {
             }
         };
 
+        let tags = self.props.image.tags.iter().map(|x| html! { <span class="album-tag">{ &x.0 }</span> });
+
         html! {
         <div class="album-preview">
             <div class="album-toolbar">
                 <button onclick=self.link.callback(|_| Msg::DeleteClicked)>{ "Delete" }</button>
                 { tag }
             </div>
+            <div class="album-tags">{ for tags }</div>
             <img src=src />
         </div>
         }
