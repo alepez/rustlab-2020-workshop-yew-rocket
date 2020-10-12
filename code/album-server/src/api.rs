@@ -1,10 +1,10 @@
 use super::Database;
 use album_db::{Image, Images};
-use rocket::{delete, get, routes, Route, State};
+use rocket::{delete, get, put, routes, Route, State};
 use rocket_contrib::json::Json;
 
 pub fn routes() -> Vec<Route> {
-    routes![index, images, image_preview, image_delete]
+    routes![index, images, image_preview, image_delete, image_put]
 }
 
 #[get("/")]
@@ -29,6 +29,13 @@ fn image_preview(db: State<Database>, image: Image) -> Option<Vec<u8>> {
 fn image_delete(db: State<Database>, image: Image) -> Json<Images> {
     let mut db = db.0.write().unwrap();
     db.delete_image(&image);
+    Json(db.list_images().clone())
+}
+
+#[put("/images/<image>")]
+fn image_put(db: State<Database>, image: Image) -> Json<Images> {
+    let mut db = db.0.write().unwrap();
+    db.update_image(image);
     Json(db.list_images().clone())
 }
 

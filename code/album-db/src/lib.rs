@@ -75,4 +75,12 @@ impl Database {
     pub fn delete_image(&mut self, image: &Image) {
         &self.images.0.retain(|x| x.id != image.id);
     }
+
+    pub fn update_image(&mut self, image: Image) {
+        self.images
+            .0
+            .iter_mut()
+            .find(|x| x.id == image.id)
+            .map(|x| *x = image);
+    }
 }
