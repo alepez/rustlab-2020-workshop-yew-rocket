@@ -1,8 +1,12 @@
 use super::Database;
 use album_db::{Image, ImageId, Images};
+use core::convert::TryFrom;
+use rocket::http::{Cookie, SameSite};
+use rocket::outcome::IntoOutcome;
 use rocket::request::{FromRequest, Outcome, Request};
 use rocket::{delete, get, put, routes, Route, State};
 use rocket_contrib::json::Json;
+use serde::{Deserialize, Serialize};
 
 pub fn routes() -> Vec<Route> {
     routes![index, images, image_preview, image_delete, image_put]
@@ -45,14 +49,30 @@ fn image_put(
     Json(db.list_images().clone())
 }
 
-pub struct AuthorizedUser;
+#[derive(Serialize, Deserialize)]
+pub struct AuthorizedUser {
+    username: String,
+}
+
+const AUTH_COOKIE_KEY: &str = "auth";
+
+impl TryFrom<rocket::http::Cookie<'_>> for AuthorizedUser {
+    type Error = ();
+    fn try_from(cookie: rocket::http::Cookie<'_>) -> Result<Self, Self::Error> {
+        let json = cookie.value();
+        serde_json::from_str(json).or(Err(()))
+    }
+}
 
 impl<'a, 'r> FromRequest<'a, 'r> for AuthorizedUser {
     type Error = ();
 
-    fn from_request(_request: &'a Request<'r>) -> Outcome<AuthorizedUser, ()> {
-        Outcome::Success(AuthorizedUser)
-        // Outcome::Failure((rocket::http::Status::Forbidden, ()))
+    fn from_request(request: &'a Request<'r>) -> Outcome<AuthorizedUser, ()> {
+        request
+            .cookies()
+            .get_private(AUTH_COOKIE_KEY)
+            .and_then(|cookie| AuthorizedUser::try_from(cookie).ok())
+            .into_outcome((rocket::http::Status::Unauthorized, ()))
     }
 }
 
