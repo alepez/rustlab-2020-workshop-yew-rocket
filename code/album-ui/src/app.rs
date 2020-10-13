@@ -46,7 +46,10 @@ impl Component for App {
                     self.state.images = Some(images);
                     true
                 }
-                _ => false,
+                worker::Response::Error(error) => {
+                    log::info!("Error: {}", error);
+                    false
+                }
             },
         }
     }
