@@ -1,20 +1,34 @@
 use super::Database;
-use album_db::{Image, ImageId, Images};
+use album_db::{Credentials, Image, ImageId, Images};
 use core::convert::TryFrom;
-use rocket::http::{Cookie, SameSite};
+use rocket::http::{Cookie, Cookies, SameSite};
 use rocket::outcome::IntoOutcome;
 use rocket::request::{FromRequest, Outcome, Request};
-use rocket::{delete, get, put, routes, Route, State};
+use rocket::{delete, get, post, put, routes, Route, State};
 use rocket_contrib::json::Json;
 use serde::{Deserialize, Serialize};
 
 pub fn routes() -> Vec<Route> {
-    routes![index, images, image_preview, image_delete, image_put]
+    routes![index, login, images, image_preview, image_delete, image_put]
 }
 
 #[get("/")]
 fn index() -> Json<String> {
     Json("hello".to_string())
+}
+
+#[post("/login", data = "<credentials>")]
+fn login(mut cookies: Cookies, credentials: Json<Credentials>) -> rocket::http::Status {
+    let username = credentials.0.username;
+    let password = credentials.0.password;
+
+    if username == "admin" && password == "pass" {
+        let auth = AuthorizedUser { username };
+        cookies.add_private(auth.into());
+        rocket::http::Status::Ok
+    } else {
+        rocket::http::Status::Unauthorized
+    }
 }
 
 #[get("/images")]
@@ -61,6 +75,16 @@ impl TryFrom<rocket::http::Cookie<'_>> for AuthorizedUser {
     fn try_from(cookie: rocket::http::Cookie<'_>) -> Result<Self, Self::Error> {
         let json = cookie.value();
         serde_json::from_str(json).or(Err(()))
+    }
+}
+
+impl<'a> Into<rocket::http::Cookie<'a>> for AuthorizedUser {
+    fn into(self) -> rocket::http::Cookie<'a> {
+        let json = serde_json::to_string(&self).unwrap();
+        Cookie::build(AUTH_COOKIE_KEY, json)
+            .http_only(true)
+            .same_site(SameSite::Lax)
+            .finish()
     }
 }
 

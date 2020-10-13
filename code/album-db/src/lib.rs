@@ -103,3 +103,9 @@ impl Database {
             .map(|x| *x = image);
     }
 }
+
+#[derive(Serialize, Deserialize)]
+pub struct Credentials {
+    pub username: String,
+    pub password: String,
+}
