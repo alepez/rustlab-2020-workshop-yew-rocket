@@ -1,7 +1,7 @@
 mod components;
 mod worker;
 
-use album_db::Images;
+use album_db::{Credentials, Images};
 use components::Preview;
 use std::rc::Rc;
 use worker::Worker;
@@ -10,7 +10,7 @@ use yew::prelude::*;
 pub struct App {
     state: State,
     link: ComponentLink<Self>,
-    _worker: Box<dyn Bridge<Worker>>,
+    worker: Box<dyn Bridge<Worker>>,
 }
 
 pub enum Msg {
@@ -35,7 +35,7 @@ impl Component for App {
         App {
             state: State::default(),
             link,
-            _worker: worker,
+            worker,
         }
     }
 
@@ -47,7 +47,14 @@ impl Component for App {
         match msg {
             Msg::Login(e) => {
                 log::debug!("login {:?}", e);
-                false
+                if let ChangeData::Value(password) = e {
+                    let username = "admin".to_string();
+                    let credentials = Credentials { username, password };
+                    self.worker.send(worker::Request::Login(credentials));
+                    true
+                } else {
+                    false
+                }
             }
             Msg::WorkerRes(res) => match res {
                 worker::Response::ImagesLoaded(images) => {
@@ -63,6 +70,10 @@ impl Component for App {
                         log::info!("Error: {}", error);
                         false
                     }
+                }
+                worker::Response::LoginSuccess(_) => {
+                    self.state.login_needed = false;
+                    true
                 }
             },
         }

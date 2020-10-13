@@ -18,16 +18,19 @@ fn index() -> Json<String> {
 }
 
 #[post("/login", data = "<credentials>")]
-fn login(mut cookies: Cookies, credentials: Json<Credentials>) -> rocket::http::Status {
+fn login(
+    mut cookies: Cookies,
+    credentials: Json<Credentials>,
+) -> Result<Json<AuthorizedUser>, rocket::http::Status> {
     let username = credentials.0.username;
     let password = credentials.0.password;
 
     if username == "admin" && password == "pass" {
         let auth = AuthorizedUser { username };
-        cookies.add_private(auth.into());
-        rocket::http::Status::Ok
+        cookies.add_private(auth.clone().into());
+        Ok(Json(auth))
     } else {
-        rocket::http::Status::Unauthorized
+        Err(rocket::http::Status::Unauthorized)
     }
 }
 
@@ -63,7 +66,7 @@ fn image_put(
     Json(db.list_images().clone())
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct AuthorizedUser {
     username: String,
 }

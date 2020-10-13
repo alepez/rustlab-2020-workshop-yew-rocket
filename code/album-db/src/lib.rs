@@ -104,8 +104,14 @@ impl Database {
     }
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Credentials {
     pub username: String,
     pub password: String,
+}
+
+// TODO Refactor this copy-paste from album-server
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct AuthorizedUser {
+    username: String,
 }

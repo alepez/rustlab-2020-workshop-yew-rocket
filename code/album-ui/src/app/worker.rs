@@ -1,4 +1,4 @@
-use album_db::{Image, ImageId, Images};
+use album_db::{AuthorizedUser, Credentials, Image, ImageId, Images};
 use std::collections::HashSet;
 use std::rc::Rc;
 use yew::format::{Json, Nothing, Text};
@@ -11,11 +11,13 @@ pub enum Request {
     GetImages,
     DeleteImage(Image),
     UpdateImage(Image),
+    Login(Credentials),
 }
 
 #[derive(Debug, Clone)]
 pub enum Response {
     ImagesLoaded(Rc<Images>),
+    LoginSuccess(Rc<AuthorizedUser>),
     Error(fetch::StatusCode),
 }
 
@@ -87,6 +89,7 @@ pub fn request(worker: &mut Worker, msg: Request) {
         }]))),
         Request::DeleteImage(_image) => Response::ImagesLoaded(Rc::new(Images::default())),
         Request::UpdateImage(image) => Response::ImagesLoaded(Rc::new(Images(vec![image]))),
+        Request::Login(_credentials) => todo!(),
     };
 
     worker.link.send_message(res);
@@ -106,6 +109,10 @@ pub fn request(worker: &mut Worker, msg: Request) {
         Request::UpdateImage(image) => {
             let req = put(format!("/api/images/{}", image.id).as_str(), json(image));
             task(worker, req, Response::ImagesLoaded)
+        }
+        Request::Login(credentials) => {
+            let req = post("/api/login", json(credentials));
+            task(worker, req, Response::LoginSuccess)
         }
     };
 
@@ -127,10 +134,16 @@ where
     fetch::Request::put(url).body(body).unwrap()
 }
 
+fn post<IN>(url: &str, body: IN) -> fetch::Request<IN>
+where
+    IN: Into<Text>,
+{
+    fetch::Request::post(url).body(body).unwrap()
+}
+
 fn json<T: serde::ser::Serialize>(data: T) -> Result<String, anyhow::Error> {
     serde_json::to_string(&data).map_err(|e| anyhow::anyhow!(e))
 }
-
 
 fn task<T, IN>(
     worker: &Worker,
