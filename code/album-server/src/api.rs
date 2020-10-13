@@ -20,7 +20,7 @@ fn images(db: State<Database>) -> Json<Images> {
 
 #[get("/images/<image>/preview.jpg")]
 fn image_preview(db: State<Database>, image: ImageId) -> Option<Vec<u8>> {
-    let db = db.0.read().unwrap();
+    let db = db.0.read().ok()?;
     let path = image.preview_path(&db);
     std::fs::read(path).ok()
 }
