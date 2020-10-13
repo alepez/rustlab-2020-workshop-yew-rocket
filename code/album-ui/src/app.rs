@@ -73,6 +73,7 @@ impl Component for App {
                 }
                 worker::Response::LoginSuccess(_) => {
                     self.state.login_needed = false;
+                    self.worker.send(worker::Request::GetImages);
                     true
                 }
             },
