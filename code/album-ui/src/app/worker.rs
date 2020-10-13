@@ -16,7 +16,7 @@ pub enum Request {
 #[derive(Debug, Clone)]
 pub enum Response {
     ImagesLoaded(Rc<Images>),
-    Error(String),
+    Error(fetch::StatusCode),
 }
 
 pub enum Msg {
@@ -150,7 +150,7 @@ where
             let res = ctor(Rc::new(data));
             link.send_message(res);
         } else {
-            let res = Response::Error(meta.status.to_string());
+            let res = Response::Error(meta.status);
             link.send_message(res);
         }
     };

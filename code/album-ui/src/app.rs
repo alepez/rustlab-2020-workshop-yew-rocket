@@ -47,8 +47,13 @@ impl Component for App {
                     true
                 }
                 worker::Response::Error(error) => {
-                    log::info!("Error: {}", error);
-                    false
+                    if error == yew::services::fetch::StatusCode::UNAUTHORIZED {
+                        log::info!("unauthorized");
+                        true
+                    } else {
+                        log::info!("Error: {}", error);
+                        false
+                    }
                 }
             },
         }
