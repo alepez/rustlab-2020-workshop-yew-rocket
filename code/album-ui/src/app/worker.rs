@@ -86,10 +86,7 @@ pub fn request(worker: &mut Worker, msg: Request) {
             tags: Vec::default(),
         }]))),
         Request::DeleteImage(_image) => Response::ImagesLoaded(Rc::new(Images::default())),
-        Request::UpdateImage(_image) => Response::ImagesLoaded(Rc::new(Images(vec![Image {
-            id: ImageId(1),
-            tags: Vec::default(),
-        }]))),
+        Request::UpdateImage(image) => Response::ImagesLoaded(Rc::new(Images(vec![image]))),
     };
 
     worker.link.send_message(res);
