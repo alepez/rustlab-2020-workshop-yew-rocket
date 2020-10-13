@@ -1,12 +1,30 @@
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
+#[derive(Debug, Serialize, Deserialize, Copy, Clone, Eq, PartialEq)]
+pub struct ImageId(pub usize);
+
+impl std::fmt::Display for ImageId {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        self.0.fmt(f)
+    }
+}
+
+impl ImageId {
+    pub fn preview_path(&self, db: &Database) -> PathBuf {
+        let filename = format!("dog.{}.jpg", self.0);
+        let mut path = PathBuf::from(&db.root);
+        path.push(filename);
+        path
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq)]
 pub struct Tag(pub String);
 
 #[derive(Debug, Serialize, Deserialize, Clone, Eq, PartialEq)]
 pub struct Image {
-    pub id: usize,
+    pub id: ImageId,
     pub tags: Vec<Tag>,
 }
 
@@ -16,6 +34,7 @@ pub struct Images(pub Vec<Image>);
 impl Image {
     pub fn from_id(id: usize) -> Self {
         let tags = Vec::default();
+        let id = ImageId(id);
         Self { id, tags }
     }
 
@@ -28,12 +47,12 @@ impl Image {
 }
 
 #[cfg(feature = "rocket_param")]
-impl<'r> rocket::request::FromParam<'r> for Image {
+impl<'r> rocket::request::FromParam<'r> for ImageId {
     type Error = &'r rocket::http::RawStr;
 
     fn from_param(param: &'r rocket::http::RawStr) -> Result<Self, Self::Error> {
         let id = usize::from_param(param)?;
-        Ok(Image::from_id(id))
+        Ok(ImageId(id))
     }
 }
 
@@ -72,8 +91,8 @@ impl Database {
         &self.images
     }
 
-    pub fn delete_image(&mut self, image: &Image) {
-        &self.images.0.retain(|x| x.id != image.id);
+    pub fn delete_image(&mut self, image_id: ImageId) {
+        &self.images.0.retain(|x| x.id != image_id);
     }
 
     pub fn update_image(&mut self, image: Image) {
