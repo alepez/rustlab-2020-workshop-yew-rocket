@@ -1,4 +1,4 @@
-use album_db::{Image, Images};
+use album_db::{Image, ImageId, Images};
 use std::collections::HashSet;
 use std::rc::Rc;
 use yew::format::{Json, Nothing, Text};
