@@ -1,5 +1,6 @@
 use super::Database;
-use album_db::{Image, Images, ImageId};
+use album_db::{Image, ImageId, Images};
+use rocket::request::{FromRequest, Outcome, Request};
 use rocket::{delete, get, put, routes, Route, State};
 use rocket_contrib::json::Json;
 
@@ -13,30 +14,46 @@ fn index() -> Json<String> {
 }
 
 #[get("/images")]
-fn images(db: State<Database>) -> Json<Images> {
+fn images(_u: AuthorizedUser, db: State<Database>) -> Json<Images> {
     let db = db.0.read().unwrap();
     Json(db.list_images().clone())
 }
 
 #[get("/images/<image>/preview.jpg")]
-fn image_preview(db: State<Database>, image: ImageId) -> Option<Vec<u8>> {
+fn image_preview(_u: AuthorizedUser, db: State<Database>, image: ImageId) -> Option<Vec<u8>> {
     let db = db.0.read().ok()?;
     let path = image.preview_path(&db);
     std::fs::read(path).ok()
 }
 
 #[delete("/images/<image>")]
-fn image_delete(db: State<Database>, image: ImageId) -> Json<Images> {
+fn image_delete(_u: AuthorizedUser, db: State<Database>, image: ImageId) -> Json<Images> {
     let mut db = db.0.write().unwrap();
     db.delete_image(image);
     Json(db.list_images().clone())
 }
 
 #[put("/images/<_image>", data = "<image>")]
-fn image_put(db: State<Database>, _image: ImageId, image: Json<Image>) -> Json<Images> {
+fn image_put(
+    _u: AuthorizedUser,
+    db: State<Database>,
+    _image: ImageId,
+    image: Json<Image>,
+) -> Json<Images> {
     let mut db = db.0.write().unwrap();
     db.update_image(image.0);
     Json(db.list_images().clone())
+}
+
+pub struct AuthorizedUser;
+
+impl<'a, 'r> FromRequest<'a, 'r> for AuthorizedUser {
+    type Error = ();
+
+    fn from_request(_request: &'a Request<'r>) -> Outcome<AuthorizedUser, ()> {
+        Outcome::Success(AuthorizedUser)
+        // Outcome::Failure((rocket::http::Status::Forbidden, ()))
+    }
 }
 
 #[cfg(test)]
