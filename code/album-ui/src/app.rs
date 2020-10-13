@@ -9,16 +9,19 @@ use yew::prelude::*;
 
 pub struct App {
     state: State,
+    link: ComponentLink<Self>,
     _worker: Box<dyn Bridge<Worker>>,
 }
 
 pub enum Msg {
+    Login(ChangeData),
     WorkerRes(worker::Response),
 }
 
 #[derive(Default)]
 struct State {
     images: Option<Rc<Images>>,
+    login_needed: bool,
 }
 
 impl Component for App {
@@ -31,6 +34,7 @@ impl Component for App {
 
         App {
             state: State::default(),
+            link,
             _worker: worker,
         }
     }
@@ -41,6 +45,10 @@ impl Component for App {
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
+            Msg::Login(e) => {
+                log::debug!("login {:?}", e);
+                false
+            }
             Msg::WorkerRes(res) => match res {
                 worker::Response::ImagesLoaded(images) => {
                     self.state.images = Some(images);
@@ -49,6 +57,7 @@ impl Component for App {
                 worker::Response::Error(error) => {
                     if error == yew::services::fetch::StatusCode::UNAUTHORIZED {
                         log::info!("unauthorized");
+                        self.state.login_needed = true;
                         true
                     } else {
                         log::info!("Error: {}", error);
@@ -66,6 +75,12 @@ impl Component for App {
                 <div>{ format!("There are {} images", images.0.len() )}</div>
                 { for images.0.iter().map(|image| { html! { <Preview image=image /> }}) }
             </>
+            }
+        } else if self.state.login_needed {
+            html! {
+            <input type="password"
+                onchange=self.link.callback(|e: ChangeData| Msg::Login(e))
+                />
             }
         } else {
             html! {
