@@ -285,3 +285,165 @@ gh e1785ce
 
 We add a text input and a put request to the server.
 
+### Update Image struct with tags
+
+gh 471c93c
+
+Note: now Image is no more Copyable, because it has a Vec field, which is not
+copyable.
+
+We keep it simple and we just clone it when needed.
+
+### Actually change image in database
+
+gh 59c26ad
+
+We add Database::update_image and image_put endpoint
+
+gh 7266590
+
+We need to use `data` instead of variable in the dynamic path.
+
+Body data processing is type directed. To indicate that a handler expects body
+data, annotate it with `data = "<param>"`, where param is an argument in the
+handler. The argument's type must implement the FromData trait.
+
+Instead of implementing FromData manually, we use `Json`.
+
+Simply use the Json type from rocket_contrib. The only condition is that the
+generic type in Json implements the Deserialize trait from Serde.
+
+### Show tags
+
+gh 602c837
+
+Just add some css and a list of tags in html.
+
+### ImageId vs Image
+
+gh e6a3c5e
+
+Strong typing is our friend.
+
+Somewhere we need only Image id, in other places we need also tags.
+
+Just create `Image` struct, similar to the `Image` struct we had before
+addings tags.
+
+In the routes' parameters, use the type is needeed (some need Image, other
+ImageId).
+
+`std::fmt::Display` must be implemented for ImageId so it can still be used
+inside html macro.
+
+### Refactor unwrap
+
+When possible, do not use `unwrap`, but return on Option.
+
+### Improve mock
+
+gh 15d3ea2
+
+## Authorization
+
+### Add AuthorizedUser
+
+gh fd70471
+
+We use request guard to express an authorized user.
+
+Add `AuthorizedUser` struct.
+
+Add it as the type of a parameter in routes you want to protect.
+
+We need to implement FromRequest or AuthorizedUser
+
+We just return `Outcome::Success(AuthorizedUser)` so no checks are done.
+
+Returning `Outcome::Failure((rocket::http::Status::Forbidden, ()))` will give
+a 403 error instead.
+
+### Cookies
+
+gh c63849e
+
+We implement FromRequest for AuthorizedUser with cookies.
+
+To do so, we also need to implement `TryFrom<rocket::http::Cookie<'_>>` for
+`AuthorizedUser` using serde_json.
+
+serde_json needs to be added to Cargo.toml
+
+Cookies is an important, built-in request guard: it allows you to get, set, and
+remove cookies. Because Cookies is a request guard, an argument of its type can
+simply be added to a handler:
+
+We can get Cookies as a [request
+guard](https://rocket.rs/v0.4/guide/requests/#cookies). But in this case we need
+them in `from_request`. We can access them with `request.cookies()`
+
+Cookies added via the Cookies::add() method are set in the clear. In other
+words, the value set is visible by the client. For sensitive data, Rocket
+provides private cookies.
+
+Private cookies are just like regular cookies except that they are encrypted
+using authenticated encryption, a form of encryption which simultaneously
+provides confidentiality, integrity, and authenticity. This means that private
+cookies cannot be inspected, tampered with, or manufactured by clients. If you
+prefer, you can think of private cookies as being signed and encrypted.
+
+### Login
+
+gh a6b2d2b
+
+We implement a login route (POST method) which will accept credentials (username
+and password).
+
+When login is successfull, a new private cookie is created. To do this, we
+implement `Into<rocket::http::Cookie<'a>> for AuthorizedUser`
+
+### Log error responses
+
+gh 0052b01
+
+Just for debugging, we add an worker::Response::Error handler which just log
+the error.
+
+### StatusCode
+
+gh 9179866
+
+We use StatusCode enum instead of String to pass worker errors to App,
+so it is simpler and efficient to handle different errors with different
+behaviors.
+
+### Login UI
+
+gh 03b2a39
+
+When an Unauthorized error is received, we want to display a login input.
+
+This is a new state of the App component, so we add a new field in the `State`
+struct. Now we just log the password.
+
+### Login request
+
+gh 41e8889
+
+AuthorizedUser is moved to album-db crate, because it is now shared between
+yew and rocket.
+
+We add `Request::Login` to worker and we send it from `Msg::Login` handler.
+
+We need to implement `post`.
+
+We change login route result to contain `Json<AuthorizedUser>` on success.
+
+On success we set `login_needed = false` in App component.
+
+### Load images after login
+
+gh 938987b
+
+## End
+
